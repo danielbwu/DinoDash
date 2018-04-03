@@ -148,3 +148,20 @@ class Fossil(unit):
                         (self.x, self.y, 46.75, 64),
                          self.mapping[self.type])
 
+
+class Arrow(unit):
+    def __init__(self, x, y):
+        super(Arrow, self).init(x, y)
+        self.spritesheet = graphics.load("arrow1.png")
+        self.blackBox = pygame.image.load("black1.png").convert_alpha()
+        self.blackBox = pygame.transform.scale(self.blackBox, (46, 64))
+        self.box_mask = pygame.mask.from_surface(self.blackBox)
+
+    def render(self, surface):
+        if debug:
+            surface.blit(self.blackBox,
+                        (self.x, self.y, 46.75, 64),
+                        (0, 0, 45, 45))
+        surface.blit(self.spritesheet,
+                        (self.x, self.y, 46.75, 64),
+                         self.mapping[self.type])
