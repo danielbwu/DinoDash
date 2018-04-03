@@ -4,9 +4,11 @@ import graphics
 
 pygame.init()
 space = pygame.mixer.music.load('Spacetime.mp3')
+pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 
 foot = pygame.mixer.Sound('Footsteps2.wav')
+foot.set_volume(0.3)
 
 
 class unit(object):
@@ -19,6 +21,7 @@ class unit(object):
 class George(unit):
     def __init__(self, x, y):
         super(George, self).__init__(x, y)
+        self.walk_speed = 5.0
         self.spritesheet = graphics.load("trainer.png")
         self.mapping = {
             "down": [(46.75 * i, 0, 46.75, 64) for i in range(4)],
@@ -54,28 +57,32 @@ class George(unit):
 
             if event.key == pygame.K_UP:
                 self.facing = "up"
-                self.y -= 2
+                self.y -= self.walk_speed
 
                 if self.y < 0:
                     self.y = 0
+
             elif event.key == pygame.K_DOWN:
                 self.facing = "down"
-                self.y += 2
+                self.y += self.walk_speed
 
                 if self.y > (599 - 64):
                     self.y = 599 - 64
+
             elif event.key == pygame.K_LEFT:
                 self.facing = "left"
-                self.x -= 2
+                self.x -= self.walk_speed
 
                 if self.x < 0:
                     self.x = 0
+
             elif event.key == pygame.K_RIGHT:
                 self.facing = "right"
-                self.x += 2
+                self.x += self.walk_speed
 
                 if self.x > (1200 - 46.75):
                     self.x = 1200 - 46.75
+
         if event.type == pygame.KEYUP:
             foot.stop()
             if event.key == pygame.K_UP:
