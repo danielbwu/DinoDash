@@ -4,6 +4,7 @@ import pygame
 import graphics
 import units
 import event
+import collision
 
 graphics.init()
 
@@ -12,25 +13,33 @@ obstacle = pygame.image.load("Easy Maze.png").convert_alpha()
 obstacle = pygame.transform.scale(obstacle, (1200, 600))
 obstacle_mask = pygame.mask.from_surface(obstacle)
 obstacle_rect = obstacle.get_rect()
-
+collision.set_map(obstacle_mask)
+collision.map_rect = obstacle_rect
+print(obstacle_rect.center)
 # - with will make a fossil that we can detect collision with
-fossil = pygame.image.load("fossils.png").convert_alpha()
-fossil_mask = pygame.mask.from_surface(fossil)
-fossil_rect = fossil.get_rect()
+# fossil = pygame.image.load("fossils.png").convert_alpha()
+# fossil_mask = pygame.mask.from_surface(fossil)
+# fossil_rect = fossil.get_rect()
 
 
 # back = graphics.load("stars.png")
-temp = graphics.load("Easy Maze.png")
-graphics.background = pygame.transform.scale(temp, (1200, 600))
+# temp = graphics.load("Easy Maze.png")
+graphics.background = obstacle
 # graphics.load("Easy Maze.png")
 # obstacle = pygame.transform.scale(graphics.background, ( 1200,  600))
 
 george = units.George(45, 375)
 george.facing = "s_down"
+collision.set_player(george)
 
 ###
-fossil = units.Fossil(1100, 150)
+fossil = units.Fossil(1100, 150, 0)
+#fossil1 = units.Fossil(200, 200, 1)
+#fossil2 = units.Fossil(500, 150, 2)
 graphics.register(fossil)
+collision.fossil = fossil
+#graphics.register(fossil1)
+#graphics.register(fossil2)
 ###
 
 graphics.register(george)
@@ -60,6 +69,7 @@ while run:
     event.update()
     george.update()
     graphics.update()
+    collision.update()
 
 pygame.display.quit()
 
