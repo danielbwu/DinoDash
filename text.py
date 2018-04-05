@@ -1,11 +1,12 @@
 import pygame
 import graphics
 
-def display(text):
-    basicfont = pygame.font.SysFont(None, 48)
+
+def display_score(text):
+    basicfont = pygame.font.SysFont(None, 32)
     text = basicfont.render(text, True, (255, 0, 0))
     textrect = text.get_rect()
-    textrect.centerx = graphics.screen.get_rect().centerx
-    textrect.centery = graphics.screen.get_rect().centery
+    textrect.centerx = 68
+    textrect.centery = 65
     graphics.screen.blit(text, textrect)
     pygame.display.update()

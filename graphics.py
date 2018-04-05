@@ -9,6 +9,7 @@ assets = {}
 renderables = []
 
 background = None
+dungeon = None
 
 screen = None
 
@@ -20,6 +21,9 @@ def update():
 
 	if background:
 		screen.blit(background, (0, 0, width, height))
+
+	if dungeon:
+		screen.blit(dungeon, (0, 0, width, height))
 
 	for r in renderables:
 		r.render(screen)

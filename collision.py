@@ -2,13 +2,14 @@ import pygame
 import units
 import graphics
 import text
+import jukebox
 from random import randint
 
 player = None  # type: units.George
 map = None
 fossils = []   # type: units.Fossil
 arrows = []    # type: units.Arrow
-spawn_chance = 7
+spawn_chance = 10
 
 
 def set_player(p):
@@ -48,22 +49,25 @@ def remove_arrow(a):
 def update():
     # Map collision
     if map.overlap(player.box_mask, (int(player.x), int(player.y))):
+        pygame.mixer.Channel(2).play(jukebox.wall)
         player.x = 45
         player.y = 375
-        # text.display("Hit wall")
 
     # Fossils
     for f in fossils:
         if player_collision(f):
-            text.display("Fossil found!")
+            pygame.mixer.Channel(3).play(jukebox.pickup)
+            player.score += 1
+            f.destroy()
+            fossil_gen()
 
     # Arrows
     for a in arrows:
         a.update()
         if player_collision(a):
-            text.display("Arrow hit!")
-            player.x = 45
-            player.y = 375
+            pygame.mixer.Channel(3).play(jukebox.arrow)
+            player.hp -= 1
+            a.destroy()
 
 
 def player_collision(obj):
@@ -76,5 +80,21 @@ def player_collision(obj):
 def arrow_gen():
     chance = randint(0, 1000)
     if chance <= spawn_chance:
-        a = units.Arrow(1200, randint(10, 590))
+        a = units.Arrow(1200 if player.x < 600 else 0,
+                        int(player.y + randint(-20, 20)),
+                        0 if player.x < 600 else 1)
         register_arrow(a)
+
+
+def fossil_gen():
+    mapping = {
+        0: (30, 520),
+        1: (310, 300),
+        2: (590, 45),
+        3: (590, 160),
+        4: (720, 160),
+        5: (1110, 160)
+    }
+
+    f = units.Fossil(mapping[randint(0, 5)], randint(0, 2))
+    register_fossil(f)

@@ -2,15 +2,16 @@ __author__ = 'Trenton'
 import pygame
 import graphics
 import collision
+import jukebox
 
 pygame.init()
-space = pygame.mixer.music.load('Spacetime.mp3')
-pygame.mixer.music.set_volume(0.3)
-pygame.mixer.music.play(-1)
-
-foot = pygame.mixer.Sound('Footsteps2.wav')
-foot.set_volume(0.3)
-debug = True
+# space = pygame.mixer.music.load('First_Battle.mp3')
+# pygame.mixer.music.set_volume(0.2)
+# pygame.mixer.music.play(-1)
+#
+# foot = pygame.mixer.Sound('sfx_step.wav')
+# foot.set_volume(0.2)
+debug = False
 
 
 class unit(object):
@@ -23,7 +24,9 @@ class unit(object):
 class George(unit):
     def __init__(self, x, y):
         super(George, self).__init__(x, y)
-        self.walk_speed = 5.0
+        self.hp = 5
+        self.walk_speed = 7.0
+        self.heart = graphics.load("heart.png")
         self.spritesheet = graphics.load("trainer.png")
         self.mapping = {
             "down": [(46.75 * i, 0, 46.75, 64) for i in range(4)],
@@ -34,12 +37,14 @@ class George(unit):
             "s_left": [(0, 65, 46.75, 64) for i in range(4)],
             "s_right": [(0, 128, 46.75, 64) for i in range(4)],
             "s_up": [(0, 192, 46.75, 64) for i in range(4)]}
+
         # - with will make a back box that i will set the the location
         self.blackBox = graphics.load("black1.png").convert_alpha()
-        self.blackBox = pygame.transform.scale(self.blackBox, (46, 64))
+        self.blackBox = pygame.transform.scale(self.blackBox, (41, 64))
         self.box_mask = pygame.mask.from_surface(self.blackBox)
         self.facing = "down"
         self.speed = 0.3
+        self.score = 0
 
     def update(self):
         self.frame = (self.frame + self.speed) % 4
@@ -59,15 +64,20 @@ class George(unit):
     def render(self, surface):
         if debug:
             surface.blit(self.blackBox,
-                         (self.x, self.y, 46.75, 64),
-                         (0, 0, 46.75, 64))
+                         (self.x, self.y, 46.75, 64))
 
         surface.blit(self.spritesheet,
                      (self.x, self.y, 46.75, 64),
                      self.mapping[self.facing][int(self.frame)])
 
+        x = 20
+        for i in range(self.hp):
+            surface.blit(self.heart,
+                         (x, 20))
+            x += 40
+
     def move(self, dir):
-        foot.play()
+        pygame.mixer.Channel(1).play(jukebox.foot)
 
         if dir == "up":
             self.facing = "up"
@@ -100,7 +110,7 @@ class George(unit):
                 self.move("right")
 
         if event.type == pygame.KEYUP:
-            foot.stop()
+            pygame.mixer.Channel(1).stop()
             if event.key == pygame.K_UP:
                 self.facing = "s_up"
 
@@ -115,8 +125,8 @@ class George(unit):
 
 
 class Fossil(unit):
-    def __init__(self, x, y, type):
-        super(Fossil, self).__init__(x, y)
+    def __init__(self, d, type):
+        super(Fossil, self).__init__(d[0], d[1])
         self.blackBox = graphics.load("black1.png").convert_alpha()
         self.blackBox = pygame.transform.scale(self.blackBox, (45, 45))
         self.box_mask = pygame.mask.from_surface(self.blackBox)
@@ -124,10 +134,11 @@ class Fossil(unit):
         self.spritesheet = graphics.load("fossils.png")
         self.spritesheet = pygame.transform.scale(self.spritesheet, (125, 65))
         self.mapping = {
-            0: (0, 0, 41.6, 65),
-            1: (41.6, 0, 83.3, 65),
-            2: (83.3, 0, 125, 65)
+            0: (0, 10, 41.6, 65),
+            1: (45, 12, 41.6, 40),
+            2: (83.3, 20, 41.6, 40)
         }
+        graphics.register(self)
 
     def render(self, surface):
         if debug:
@@ -135,16 +146,23 @@ class Fossil(unit):
                          (self.x, self.y, 46.75, 64),
                          (0, 0, 45, 45))
         surface.blit(self.spritesheet,
-                     (self.x, self.y, 46.75, 64),
+                     (self.x, self.y),
                      self.mapping[self.type])
+
+    def destroy(self):
+        collision.remove_fossil(self)
+        graphics.remove(self)
 
 
 class Arrow(unit):
-    def __init__(self, x, y):
+    def __init__(self, x, y, dir):
         super(Arrow, self).__init__(x, y)
-        self.move_speed = 5.0
+        self.dir = dir
+        self.move_speed = 14.0
         self.spritesheet = graphics.load("arrow1.png").convert_alpha()
         self.spritesheet = pygame.transform.scale(self.spritesheet, (84, 24))
+        if dir == 1:
+            self.spritesheet = pygame.transform.flip(self.spritesheet, True, False)
         self.box_mask = pygame.mask.from_surface(self.spritesheet)
         graphics.register(self)
 
@@ -153,7 +171,14 @@ class Arrow(unit):
                      (self.x, self.y))
 
     def update(self):
-        self.x -= self.move_speed
-        if self.x < 0:
-            collision.remove_arrow(self)
-            graphics.remove(self)
+        if self.dir == 0:
+            self.x -= self.move_speed
+        else:
+            self.x += self.move_speed
+
+        if self.x < 0 or self.x > 1200:
+            self.destroy()
+
+    def destroy(self):
+        collision.remove_arrow(self)
+        graphics.remove(self)
