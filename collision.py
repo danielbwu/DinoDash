@@ -9,7 +9,7 @@ player = None  # type: units.George
 map = None
 fossils = []   # type: units.Fossil
 arrows = []    # type: units.Arrow
-spawn_chance = 10
+spawn_chance = 30
 
 
 def set_player(p):

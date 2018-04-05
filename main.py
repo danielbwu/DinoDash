@@ -29,17 +29,8 @@ george.facing = "s_down"
 collision.set_player(george)
 graphics.register(george)
 
-###
-# fossil = units.Fossil(590, 45, 0)
-# fossil1 = units.Fossil(590, 160, 1)
-# fossil2 = units.Fossil(720, 160, 2)
-# graphics.register(fossil)
-# graphics.register(fossil1)
-# graphics.register(fossil2)
-# collision.register_fossil(fossil)
-# collision.register_fossil(fossil1)
-# collision.register_fossil(fossil2)
 collision.fossil_gen()
+
 
 def quit(e):
     global run
